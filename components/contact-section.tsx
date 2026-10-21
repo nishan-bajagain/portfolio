@@ -1,13 +1,17 @@
 "use client"
+import { LegacyIcon } from "@/components/legacy-icon"
 
 import type React from "react"
 
 import { useState } from "react"
-import { usePortfolioData } from "@/lib/portfolio-context"
 import { sendMessage } from "@/lib/data"
+import type { PortfolioData } from "@/lib/types"
 
-export function ContactSection() {
-  const { data, loading } = usePortfolioData()
+function trackContactEvent(type: "contact_start" | "contact_submit", props: Record<string, string> = {}) {
+  void import("@/lib/analytics/client").then(({ trackEvent }) => trackEvent(type, props))
+}
+
+export function ContactSection({ data }: { data: PortfolioData }) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -24,24 +28,16 @@ export function ContactSection() {
 
     try {
       await sendMessage(formData)
+      trackContactEvent("contact_submit", { result: "success" })
       setSubmitted(true)
       setFormData({ name: "", email: "", message: "" })
       setTimeout(() => setSubmitted(false), 5000)
-    } catch (err) {
+    } catch {
+      trackContactEvent("contact_submit", { result: "failure" })
       setError("Failed to send message. Please try again.")
     } finally {
       setIsSubmitting(false)
     }
-  }
-
-  if (loading || !data) {
-    return (
-      <section className="py-12 sm:py-16 md:py-20 lg:py-32 w-full">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div><p className="text-muted-foreground">Loading...</p></div>
-        </div>
-      </section>
-    )
   }
 
   return (
@@ -51,7 +47,7 @@ export function ContactSection() {
           {/* Section Header */}
           <div className="text-center mb-10 sm:mb-16">
             <span className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-primary text-sm font-medium mb-4">
-              <i className="ri-mail-line" />
+              <LegacyIcon className="ri-mail-line" />
               Get In Touch
             </span>
             <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground mb-4">
@@ -102,10 +98,12 @@ export function ContactSection() {
                       href={url}
                       target="_blank"
                       rel="noopener noreferrer"
+                      data-track="social_link"
+                      data-track-id={key}
                       className="w-11 h-11 sm:w-12 sm:h-12 lg:w-14 lg:h-14 rounded-xl bg-card border border-border flex items-center justify-center hover:border-primary hover:text-primary transition-all duration-300"
                       aria-label={key}
                     >
-                      <i className={`ri-${key}-fill text-lg sm:text-xl lg:text-2xl`} />
+                      <LegacyIcon className={`ri-${key}-fill text-lg sm:text-xl lg:text-2xl`} />
                     </a>
                   ))}
                 </div>
@@ -117,7 +115,7 @@ export function ContactSection() {
               {error && (
                 <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 mb-6">
                   <p className="text-sm text-destructive flex items-center gap-2">
-                    <i className="ri-error-warning-line" />
+                    <LegacyIcon className="ri-error-warning-line" />
                     {error}
                   </p>
                 </div>
@@ -125,7 +123,7 @@ export function ContactSection() {
               {submitted ? (
                 <div className="h-full flex flex-col items-center justify-center text-center space-y-4 py-8">
                   <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-green-500/10 flex items-center justify-center">
-                    <i className="ri-check-line text-3xl sm:text-4xl text-green-500" />
+                    <LegacyIcon className="ri-check-line text-3xl sm:text-4xl text-green-500" />
                   </div>
                   <h3 className="text-xl sm:text-2xl font-semibold text-foreground">Message Sent!</h3>
                   <p className="text-muted-foreground text-sm sm:text-base">
@@ -133,13 +131,17 @@ export function ContactSection() {
                   </p>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
+                <form onSubmit={handleSubmit} onFocus={() => trackContactEvent("contact_start")} className="space-y-5 sm:space-y-6">
+                  <div className="sr-only" aria-hidden="true">
+                    <label htmlFor="website">Leave this field blank</label>
+                    <input id="website" name="website" tabIndex={-1} autoComplete="off" />
+                  </div>
                   <div className="space-y-2">
                     <label htmlFor="name" className="text-sm sm:text-base font-medium text-foreground">
                       Your Name
                     </label>
                     <div className="relative">
-                      <i className="ri-user-line absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                      <LegacyIcon className="ri-user-line absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
                       <input
                         type="text"
                         id="name"
@@ -157,7 +159,7 @@ export function ContactSection() {
                       Your Email
                     </label>
                     <div className="relative">
-                      <i className="ri-mail-line absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                      <LegacyIcon className="ri-mail-line absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
                       <input
                         type="email"
                         id="email"
@@ -175,7 +177,7 @@ export function ContactSection() {
                       Your Message
                     </label>
                     <div className="relative">
-                      <i className="ri-message-2-line absolute left-4 top-4 text-muted-foreground" />
+                      <LegacyIcon className="ri-message-2-line absolute left-4 top-4 text-muted-foreground" />
                       <textarea
                         id="message"
                         required
@@ -195,12 +197,12 @@ export function ContactSection() {
                   >
                     {isSubmitting ? (
                       <>
-                        <i className="ri-loader-4-line animate-spin" />
+                        <LegacyIcon className="ri-loader-4-line animate-spin" />
                         Sending...
                       </>
                     ) : (
                       <>
-                        <i className="ri-send-plane-line" />
+                        <LegacyIcon className="ri-send-plane-line" />
                         Send Message
                       </>
                     )}
@@ -229,7 +231,7 @@ function ContactInfoItem({
   const content = (
     <div className="flex items-center gap-4 p-4 sm:p-5 rounded-xl bg-card border border-border hover:border-primary/50 transition-all duration-300 group">
       <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-        <i className={`${icon} text-xl sm:text-2xl text-primary`} />
+        <LegacyIcon className={`${icon} text-xl sm:text-2xl text-primary`} />
       </div>
       <div>
         <p className="text-sm text-muted-foreground">{label}</p>
@@ -239,7 +241,7 @@ function ContactInfoItem({
   )
 
   if (href) {
-    return <a href={href}>{content}</a>
+    return     <a href={href} data-track={label === "Email" ? "email_tap" : "phone_tap"}>{content}</a>
   }
 
   return content

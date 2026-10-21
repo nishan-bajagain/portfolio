@@ -1,75 +1,23 @@
-# MongoDB Setup Instructions
+# MongoDB setup
 
-Your portfolio has been converted to use MongoDB instead of JSON files. Follow these steps to set up the database:
+Use MongoDB Atlas or a local MongoDB replica set. Production analytics relies on MongoDB transactions for idempotent event ingestion; Atlas clusters support this by default.
 
-## 1. Install MongoDB
+1. Create a database user restricted to the portfolio database and allow the application's host in the network access list.
+2. Set `MONGODB_URI` in `.env.local` (local) or the hosting provider's environment settings.
+3. Set a random `JWT_SECRET` of at least 32 characters and `ANALYTICS_SALT` of at least 32 characters. Keep these values separate and private.
+4. Set `ADMIN_EMAIL` and a bcrypt `ADMIN_PASSWORD_HASH`. Generate a hash with:
 
-### Option A: Local MongoDB Installation
-```bash
-# Ubuntu/Debian
-sudo apt-get install mongodb
+   ```powershell
+   node -e "require('bcryptjs').hash('choose-a-unique-password', 12).then(console.log)"
+   ```
 
-# macOS with Homebrew
-brew install mongodb-community
+5. Install packages and create indexes:
 
-# Start MongoDB service
-sudo systemctl start mongodb  # Linux
-brew services start mongodb-community  # macOS
-```
+   ```powershell
+   pnpm install
+   pnpm ensure-indexes
+   ```
 
-### Option B: MongoDB Atlas (Cloud)
-1. Go to [MongoDB Atlas](https://www.mongodb.com/atlas)
-2. Create a free account and cluster
-3. Get your connection string
+The application uses the `portfolio`, `messages`, `rate_limits`, and analytics collections. Public portfolio reads never seed or mutate the database. To initialize a new portfolio, use the admin panel or explicitly seed a JSON export with `pnpm seed path\to\portfolio.json`; the seed command refuses to overwrite existing data.
 
-## 2. Environment Variables
-
-Create a `.env.local` file in your project root:
-
-```bash
-# For local MongoDB
-MONGODB_URI=mongodb://localhost:27017/portfolio
-
-# For MongoDB Atlas
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/portfolio
-
-# JWT Secret
-JWT_SECRET=your-super-secret-jwt-key-here
-```
-
-## 3. Install Dependencies
-
-```bash
-npm install mongodb
-# or
-pnpm install mongodb
-```
-
-## 4. Default Admin Credentials
-
-The system will automatically create default admin credentials:
-- **Email**: admin@portfolio.com
-- **Password**: admin123
-
-**Important**: Change these credentials after first login!
-
-## 5. Database Collections
-
-The system automatically creates these collections:
-- `portfolio` - Main portfolio data
-- `messages` - Contact form messages  
-- `admin` - Admin authentication data
-
-## 6. Data Migration
-
-Your existing JSON data will be automatically migrated to MongoDB on first run. The original JSON files can be kept as backup.
-
-## 7. Start the Application
-
-```bash
-npm run dev
-# or
-pnpm dev
-```
-
-The application will connect to MongoDB and initialize the database with your existing data.
+Place the application and Atlas cluster in nearby regions. Configure the deployment platform's environment variables before enabling admin writes or analytics.

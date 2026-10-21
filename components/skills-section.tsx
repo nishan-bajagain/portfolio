@@ -1,15 +1,15 @@
 "use client"
+import { LegacyIcon } from "@/components/legacy-icon"
 
-import { useState } from "react"
-import { usePortfolioData } from "@/lib/portfolio-context"
-import { type Skill } from "@/lib/data"
+import { useState, useTransition } from "react"
+import type { PortfolioData, Skill } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
 type Category = "all" | "frontend" | "backend" | "other"
 
-export function SkillsSection() {
-  const { data, loading } = usePortfolioData()
+export function SkillsSection({ data }: { data: PortfolioData }) {
   const [activeCategory, setActiveCategory] = useState<Category>("all")
+  const [, startTransition] = useTransition()
 
   const categories: { value: Category; label: string; icon: string }[] = [
     { value: "all", label: "All", icon: "ri-apps-line" },
@@ -17,16 +17,6 @@ export function SkillsSection() {
     { value: "backend", label: "Backend", icon: "ri-server-line" },
     { value: "other", label: "Others", icon: "ri-tools-line" },
   ]
-
-  if (loading || !data) {
-    return (
-      <section className="py-12 sm:py-16 md:py-20 lg:py-32 w-full">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div><p className="text-muted-foreground">Loading...</p></div>
-        </div>
-      </section>
-    )
-  }
 
   const filteredSkills =
     activeCategory === "all"
@@ -40,7 +30,7 @@ export function SkillsSection() {
           {/* Section Header */}
           <div className="text-center mb-10 sm:mb-16">
             <span className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-primary text-sm font-medium mb-4">
-              <i className="ri-code-s-slash-line" />
+              <LegacyIcon className="ri-code-s-slash-line" />
               My Skills
             </span>
             <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground mb-3 sm:mb-4">
@@ -57,7 +47,7 @@ export function SkillsSection() {
             {categories.map((category) => (
               <button
                 key={category.value}
-                onClick={() => setActiveCategory(category.value)}
+                onClick={() => startTransition(() => setActiveCategory(category.value))}
                 className={cn(
                   "flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 lg:px-6 py-2 sm:py-2.5 lg:py-3 rounded-full text-sm lg:text-base font-medium transition-all duration-300",
                   activeCategory === category.value
@@ -65,7 +55,7 @@ export function SkillsSection() {
                     : "bg-card border border-border text-muted-foreground hover:text-foreground hover:border-primary/50",
                 )}
               >
-                <i className={`${category.icon} text-sm sm:text-base lg:text-lg`} />
+                <LegacyIcon className={`${category.icon} text-sm sm:text-base lg:text-lg`} />
                 {category.label}
               </button>
             ))}
@@ -90,7 +80,7 @@ function SkillCard({ skill, index }: { skill: Skill; index: number }) {
       style={{ animationDelay: `${index * 50}ms` }}
     >
       <div className="w-10 h-10 sm:w-14 sm:h-14 lg:w-16 lg:h-16 mx-auto mb-2 sm:mb-3 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors duration-300">
-        <i className={`${skill.icon} text-lg sm:text-2xl lg:text-3xl text-primary`} />
+        <LegacyIcon className={`${skill.icon} text-lg sm:text-2xl lg:text-3xl text-primary`} />
       </div>
       <h4 className="font-medium text-foreground text-xs sm:text-sm lg:text-base group-hover:text-primary transition-colors leading-tight">
         {skill.name}

@@ -1,35 +1,39 @@
 "use client"
+import { LegacyIcon } from "@/components/legacy-icon"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useSyncExternalStore } from "react"
 import Link from "next/link"
 import { useTheme } from "next-themes"
 import { cn } from "@/lib/utils"
 
-export function Navbar() {
+function subscribeToHydration() {
+  return () => {}
+}
+
+export function Navbar({ isHome = true }: { isHome?: boolean }) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const { theme, setTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
+  const mounted = useSyncExternalStore(subscribeToHydration, () => true, () => false)
 
   useEffect(() => {
-    setMounted(true)
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50)
     }
-    window.addEventListener("scroll", handleScroll)
+    window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
   const navLinks = [
-    { href: "#home", label: "Home" },
-    { href: "#about", label: "About" },
-    { href: "#skills", label: "Skills" },
-    { href: "#projects", label: "Projects" },
-    { href: "#contact", label: "Contact" },
+    { href: isHome ? "#home" : "/#home", label: "Home" },
+    { href: isHome ? "#about" : "/#about", label: "About" },
+    { href: isHome ? "#skills" : "/#skills", label: "Skills" },
+    { href: isHome ? "#projects" : "/#projects", label: "Projects" },
+    { href: isHome ? "#contact" : "/#contact", label: "Contact" },
   ]
 
   return (
-    <nav
+    <nav aria-label="Primary navigation"
       className={cn(
         "fixed top-0 left-0 right-0 z-[100] transition-all duration-300",
         isScrolled ? "bg-background/80 backdrop-blur-lg border-b border-border shadow-sm" : "bg-transparent",
@@ -48,14 +52,16 @@ export function Navbar() {
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-6 lg:gap-8">
               {navLinks.map((link) => (
-                <Link
+                <a
                   key={link.href}
                   href={link.href}
+                  data-track="nav_link"
+                  data-track-id={link.label}
                   className="relative text-muted-foreground hover:text-foreground transition-colors duration-300 group"
                 >
                   {link.label}
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full" />
-                </Link>
+                </a>
               ))}
 
               {/* Theme Toggle */}
@@ -65,7 +71,7 @@ export function Navbar() {
                   className="p-2 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors duration-300"
                   aria-label="Toggle theme"
                 >
-                  <i className={cn("text-xl", theme === "dark" ? "ri-sun-line" : "ri-moon-line")} />
+                  <LegacyIcon className={cn("text-xl", theme === "dark" ? "ri-sun-line" : "ri-moon-line")} />
                 </button>
               )}
 
@@ -74,11 +80,13 @@ export function Navbar() {
 
             {/* Mobile Menu Button */}
             <button
-              className="md:hidden p-2 rounded-lg bg-secondary"
+              className="md:hidden min-h-11 min-w-11 p-2 rounded-lg bg-secondary"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label="Toggle menu"
+              aria-expanded={isMobileMenuOpen}
+              aria-controls="mobile-navigation"
             >
-              <i
+              <LegacyIcon
                 className={cn(
                   "text-2xl transition-transform duration-300",
                   isMobileMenuOpen ? "ri-close-line" : "ri-menu-line",
@@ -91,6 +99,7 @@ export function Navbar() {
 
       {/* Mobile Menu */}
       <div
+        id="mobile-navigation"
         className={cn(
           "md:hidden absolute top-full left-0 right-0 bg-background/95 backdrop-blur-lg border-b border-border transition-all duration-300 overflow-hidden",
           isMobileMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0",
@@ -98,14 +107,16 @@ export function Navbar() {
       >
         <div className="px-4 py-4 space-y-2">
           {navLinks.map((link) => (
-            <Link
+            <a
               key={link.href}
               href={link.href}
+              data-track="nav_link"
+              data-track-id={link.label}
               className="block px-4 py-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-300"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               {link.label}
-            </Link>
+            </a>
           ))}
           <div className="flex items-center gap-4 pt-2">
             {mounted && (
@@ -113,7 +124,7 @@ export function Navbar() {
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                 className="w-full p-3 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors duration-300"
               >
-                <i className={cn("text-xl", theme === "dark" ? "ri-sun-line" : "ri-moon-line")} />
+                <LegacyIcon className={cn("text-xl", theme === "dark" ? "ri-sun-line" : "ri-moon-line")} />
               </button>
             )}
           </div>

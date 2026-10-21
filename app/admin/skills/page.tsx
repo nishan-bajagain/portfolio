@@ -1,4 +1,5 @@
 "use client"
+import { LegacyIcon } from "@/components/legacy-icon"
 
 import type React from "react"
 import { useState } from "react"
@@ -8,6 +9,7 @@ import { AuthGuard } from "@/components/admin/auth-guard"
 import { usePortfolio } from "@/lib/admin-context"
 import type { Skill } from "@/lib/data"
 import { cn } from "@/lib/utils"
+import { skillIconOptions } from "@/components/legacy-icon"
 
 export default function SkillsPage() {
   const { data, addSkill, updateSkill, deleteSkill } = usePortfolio()
@@ -85,7 +87,7 @@ export default function SkillsPage() {
                   <div key={index} className="p-4 border rounded-lg bg-card">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <i className={`${skill.icon} text-xl text-primary`}></i>
+                        <LegacyIcon className={`${skill.icon} text-xl text-primary`}></LegacyIcon>
                         <h3 className="font-semibold">{skill.name}</h3>
                       </div>
                       <div className="flex gap-2">
@@ -93,13 +95,13 @@ export default function SkillsPage() {
                           onClick={() => openEditModal(index)}
                           className="p-1 text-blue-600 hover:bg-blue-100 rounded"
                         >
-                          <i className="ri-edit-line"></i>
+                          <LegacyIcon className="ri-edit-line"></LegacyIcon>
                         </button>
                         <button
                           onClick={() => handleDelete(index)}
                           className="p-1 text-red-600 hover:bg-red-100 rounded"
                         >
-                          <i className="ri-delete-bin-line"></i>
+                          <LegacyIcon className="ri-delete-bin-line"></LegacyIcon>
                         </button>
                       </div>
                     </div>
@@ -139,13 +141,15 @@ export default function SkillsPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Icon</label>
-                <input
-                  type="text"
+                <select
                   value={formData.icon}
                   onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                  className="w-full p-2 border rounded-lg"
-                  placeholder="ri-code-line"
-                />
+                  className="w-full p-2 border rounded-lg capitalize"
+                >
+                  {skillIconOptions.map((option) => (
+                    <option key={option.value} value={option.value} className="capitalize">{option.label}</option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Category</label>

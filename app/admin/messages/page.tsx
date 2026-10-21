@@ -1,4 +1,5 @@
 "use client"
+import { LegacyIcon } from "@/components/legacy-icon"
 
 import { useState, useEffect } from "react"
 import { AdminSidebar } from "@/components/admin/sidebar"
@@ -8,7 +9,7 @@ import { usePortfolio } from "@/lib/admin-context"
 import { cn } from "@/lib/utils"
 
 export default function MessagesPage() {
-  const { messages, updateMessagesList, refreshMessages } = usePortfolio()
+  const { messages, markMessageRead: setMessageRead, deleteMessage: removeMessage, refreshMessages } = usePortfolio()
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [filter, setFilter] = useState<"all" | "unread" | "read">("all")
 
@@ -25,16 +26,8 @@ export default function MessagesPage() {
 
   const selectedMessage = messages.find((m) => m.id === selectedId)
 
-  const markMessageRead = async (id: string) => {
-    const updatedMessages = messages.map(m => 
-      m.id === id ? { ...m, read: true } : m
-    )
-    await updateMessagesList(updatedMessages)
-  }
-
   const deleteMessage = async (id: string) => {
-    const updatedMessages = messages.filter(m => m.id !== id)
-    await updateMessagesList(updatedMessages)
+    await removeMessage(id)
     if (selectedId === id) {
       setSelectedId(null)
     }
@@ -44,13 +37,13 @@ export default function MessagesPage() {
     setSelectedId(id)
     const message = messages.find((m) => m.id === id)
     if (message && !message.read) {
-      await markMessageRead(id)
+      await setMessageRead(id, true)
     }
   }
 
   const handleDelete = (id: string) => {
     if (confirm("Are you sure you want to delete this message?")) {
-      deleteMessage(id)
+      void deleteMessage(id)
       if (selectedId === id) setSelectedId(null)
     }
   }
@@ -99,7 +92,7 @@ export default function MessagesPage() {
                 <div className="flex-1 overflow-y-auto max-h-[50vh] lg:max-h-none">
                   {filteredMessages.length === 0 ? (
                     <div className="p-6 text-center text-muted-foreground">
-                      <i className="ri-mail-line text-4xl mb-2 block" />
+                      <LegacyIcon className="ri-mail-line text-4xl mb-2 block" />
                       No messages found
                     </div>
                   ) : (
@@ -120,7 +113,7 @@ export default function MessagesPage() {
                               message.read ? "bg-secondary" : "bg-primary/20",
                             )}
                           >
-                            <i
+                            <LegacyIcon
                               className={cn(
                                 "ri-user-line text-sm sm:text-base",
                                 message.read ? "text-muted-foreground" : "text-primary",
@@ -166,10 +159,10 @@ export default function MessagesPage() {
                             onClick={handleBack}
                             className="lg:hidden p-2 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors"
                           >
-                            <i className="ri-arrow-left-line" />
+                            <LegacyIcon className="ri-arrow-left-line" />
                           </button>
                           <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-primary/10 flex items-center justify-center">
-                            <i className="ri-user-line text-lg sm:text-2xl text-primary" />
+                            <LegacyIcon className="ri-user-line text-lg sm:text-2xl text-primary" />
                           </div>
                           <div className="min-w-0">
                             <h3 className="text-base sm:text-xl font-semibold text-foreground truncate">
@@ -188,13 +181,13 @@ export default function MessagesPage() {
                             href={`mailto:${selectedMessage.email}`}
                             className="p-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-colors"
                           >
-                            <i className="ri-reply-line text-lg" />
+                            <LegacyIcon className="ri-reply-line text-lg" />
                           </a>
                           <button
                             onClick={() => handleDelete(selectedMessage.id)}
                             className="p-2 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
                           >
-                            <i className="ri-delete-bin-line text-lg" />
+                            <LegacyIcon className="ri-delete-bin-line text-lg" />
                           </button>
                         </div>
                       </div>
@@ -211,7 +204,7 @@ export default function MessagesPage() {
                 ) : (
                   <div className="flex-1 flex items-center justify-center text-muted-foreground">
                     <div className="text-center">
-                      <i className="ri-mail-open-line text-5xl sm:text-6xl mb-4 block" />
+                      <LegacyIcon className="ri-mail-open-line text-5xl sm:text-6xl mb-4 block" />
                       <p className="text-sm sm:text-base">Select a message to view</p>
                     </div>
                   </div>

@@ -1,4 +1,5 @@
 "use client"
+import { LegacyIcon } from "@/components/legacy-icon"
 
 import type React from "react"
 import { useState } from "react"
@@ -41,7 +42,7 @@ export default function PersonalInfoPage() {
               {/* Basic Info */}
               <div className="bg-card border border-border rounded-xl p-4 sm:p-6">
                 <h3 className="text-lg font-semibold text-foreground mb-4 sm:mb-6 flex items-center gap-2">
-                  <i className="ri-user-line text-primary" />
+                  <LegacyIcon className="ri-user-line text-primary" />
                   Basic Information
                 </h3>
 
@@ -132,7 +133,7 @@ export default function PersonalInfoPage() {
               {/* Roles */}
               <div className="bg-card border border-border rounded-xl p-4 sm:p-6">
                 <h3 className="text-lg font-semibold text-foreground mb-4 sm:mb-6 flex items-center gap-2">
-                  <i className="ri-user-star-line text-primary" />
+                  <LegacyIcon className="ri-user-star-line text-primary" />
                   Roles (for typing animation)
                 </h3>
                 <div className="space-y-3">
@@ -156,7 +157,7 @@ export default function PersonalInfoPage() {
                         }}
                         className="px-4 py-3 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
                       >
-                        <i className="ri-delete-bin-line" />
+                        <LegacyIcon className="ri-delete-bin-line" />
                       </button>
                     </div>
                   ))}
@@ -165,7 +166,7 @@ export default function PersonalInfoPage() {
                     onClick={() => setPersonal({ ...personal, roles: [...personal.roles, ""] })}
                     className="flex items-center gap-2 px-4 py-2 text-primary hover:bg-primary/10 rounded-lg transition-colors"
                   >
-                    <i className="ri-add-line" />
+                    <LegacyIcon className="ri-add-line" />
                     Add Role
                   </button>
                 </div>
@@ -174,13 +175,13 @@ export default function PersonalInfoPage() {
               {/* Social Links */}
               <div className="bg-card border border-border rounded-xl p-4 sm:p-6">
                 <h3 className="text-lg font-semibold text-foreground mb-4 sm:mb-6 flex items-center gap-2">
-                  <i className="ri-share-line text-primary" />
+                  <LegacyIcon className="ri-share-line text-primary" />
                   Social Links
                 </h3>
                 <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-foreground flex items-center gap-2">
-                      <i className="ri-github-fill" />
+                      <LegacyIcon className="ri-github-fill" />
                       GitHub
                     </label>
                     <input
@@ -194,7 +195,7 @@ export default function PersonalInfoPage() {
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-foreground flex items-center gap-2">
-                      <i className="ri-linkedin-fill" />
+                      <LegacyIcon className="ri-linkedin-fill" />
                       LinkedIn
                     </label>
                     <input
@@ -208,7 +209,7 @@ export default function PersonalInfoPage() {
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-foreground flex items-center gap-2">
-                      <i className="ri-facebook-fill" />
+                      <LegacyIcon className="ri-facebook-fill" />
                       Facebook
                     </label>
                     <input
@@ -222,7 +223,7 @@ export default function PersonalInfoPage() {
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-foreground flex items-center gap-2">
-                      <i className="ri-twitter-x-fill" />
+                      <LegacyIcon className="ri-twitter-x-fill" />
                       Twitter
                     </label>
                     <input
@@ -240,7 +241,7 @@ export default function PersonalInfoPage() {
               {/* Stats */}
               <div className="bg-card border border-border rounded-xl p-4 sm:p-6">
                 <h3 className="text-lg font-semibold text-foreground mb-4 sm:mb-6 flex items-center gap-2">
-                  <i className="ri-bar-chart-line text-primary" />
+                  <LegacyIcon className="ri-bar-chart-line text-primary" />
                   Statistics
                 </h3>
                 <div className="grid sm:grid-cols-3 gap-4 sm:gap-6">
@@ -281,12 +282,12 @@ export default function PersonalInfoPage() {
                   disabled={isLoading}
                   className="flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 disabled:opacity-50 transition-all"
                 >
-                  <i className={isLoading ? "ri-loader-4-line animate-spin" : "ri-save-line"} />
+                  <LegacyIcon className={isLoading ? "ri-loader-4-line animate-spin" : "ri-save-line"} />
                   {isLoading ? "Saving..." : "Save Changes"}
                 </button>
                 {saved && (
                   <span className="flex items-center justify-center gap-2 text-green-500">
-                    <i className="ri-check-line" />
+                    <LegacyIcon className="ri-check-line" />
                     Saved successfully!
                   </span>
                 )}

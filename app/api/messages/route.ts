@@ -1,95 +1,75 @@
-import { NextRequest, NextResponse } from 'next/server'
-import jwt from 'jsonwebtoken'
-import { getMessages, addMessage, deleteMessage } from '@/lib/database'
+import { NextRequest, NextResponse } from "next/server"
+import { verifyAdminRequest } from "@/lib/auth.server"
+import { addMessage, getMessages } from "@/lib/database"
+import { contactSchema } from "@/lib/schemas"
+import { checkRateLimit, getRequestIp, hashRateLimitKey, isSameOriginRequest } from "@/lib/rate-limit.server"
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
-
-function verifyAuth(request: NextRequest) {
-  const token = request.cookies.get('admin-token')?.value
-  if (!token) throw new Error('Unauthorized')
-  try {
-    jwt.verify(token, JWT_SECRET)
-  } catch (error) {
-    throw new Error('Unauthorized')
-  }
-}
+const PRIVATE_HEADERS = { "Cache-Control": "private, no-store" }
 
 export async function GET(request: NextRequest) {
+  if (!verifyAdminRequest(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers: PRIVATE_HEADERS })
+  }
   try {
-    verifyAuth(request)
-    const messages = await getMessages()
-    
-    const response = NextResponse.json(messages)
-    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
-    response.headers.set('Pragma', 'no-cache')
-    response.headers.set('Expires', '0')
-    
-    return response
-  } catch (error) {
-    console.error('Messages API GET error:', error)
-    if (error instanceof Error && error.message === 'Unauthorized') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const requestedLimit = Number(request.nextUrl.searchParams.get("limit") || 50)
+    const requestedSkip = Number(request.nextUrl.searchParams.get("skip") || 0)
+    if (!Number.isInteger(requestedLimit) || !Number.isInteger(requestedSkip) || requestedSkip < 0 || requestedSkip > 100_000) {
+      return NextResponse.json({ error: "Invalid pagination values" }, { status: 400, headers: PRIVATE_HEADERS })
     }
-    return NextResponse.json({ 
-      error: 'Failed to fetch messages', 
-      details: error instanceof Error ? error.message : 'Unknown error' 
-    }, { status: 500 })
+    const limit = Math.min(Math.max(requestedLimit, 1), 100)
+    const skip = requestedSkip
+    const messages = await getMessages(limit, skip)
+    return NextResponse.json(messages, { headers: PRIVATE_HEADERS })
+  } catch (error) {
+    console.error("Messages API GET error:", error)
+    return NextResponse.json({ error: "Failed to fetch messages" }, { status: 500, headers: PRIVATE_HEADERS })
   }
 }
 
 export async function POST(request: NextRequest) {
-  try {
-    const { name, email, message } = await request.json()
-    
-    if (!name || !email || !message) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
-    }
-    
-    const newMessage = {
-      name: name.trim(),
-      email: email.trim(),
-      message: message.trim(),
-      date: new Date().toISOString().split('T')[0],
-      read: false
-    }
-    
-    await addMessage(newMessage)
-    
-    const response = NextResponse.json({ success: true })
-    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
-    
-    return response
-  } catch (error) {
-    console.error('Messages API POST error:', error)
-    return NextResponse.json({ error: 'Failed to send message' }, { status: 500 })
+  if (!isSameOriginRequest(request)) {
+    return NextResponse.json({ error: "Invalid request origin" }, { status: 403, headers: PRIVATE_HEADERS })
   }
-}
+  if (Number(request.headers.get("content-length") || 0) > 8_000) {
+    return NextResponse.json({ error: "Request body too large" }, { status: 413, headers: PRIVATE_HEADERS })
+  }
 
-export async function PUT(request: NextRequest) {
   try {
-    verifyAuth(request)
-    const messages = await request.json()
-    
-    if (!Array.isArray(messages)) {
-      return NextResponse.json({ error: 'Invalid data format' }, { status: 400 })
+    const body = await request.text()
+    if (new TextEncoder().encode(body).length > 8_000) {
+      return NextResponse.json({ error: "Request body too large" }, { status: 413, headers: PRIVATE_HEADERS })
     }
-    
-    // Update messages in database
-    const db = await require('@/lib/database').getDatabase()
-    await db.collection('messages').deleteMany({})
-    if (messages.length > 0) {
-      await db.collection('messages').insertMany(messages)
+    let input: unknown
+    try {
+      input = JSON.parse(body)
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400, headers: PRIVATE_HEADERS })
     }
-    
-    const response = NextResponse.json({ success: true })
-    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
-    
-    return response
+    const parsed = contactSchema.safeParse(input)
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Invalid contact form data" }, { status: 400, headers: PRIVATE_HEADERS })
+    }
+    if (parsed.data.website) {
+      return new NextResponse(null, { status: 204, headers: PRIVATE_HEADERS })
+    }
+
+    const deviceId = request.cookies.get("device-id")?.value
+    const identity = deviceId ? `device:${deviceId}` : `ip:${getRequestIp(request)}`
+    const allowed = await checkRateLimit(hashRateLimitKey(`contact:${identity}`), 3, 60 * 60 * 1000)
+    if (!allowed) {
+      return NextResponse.json({ error: "Too many messages. Please try again later." }, { status: 429, headers: PRIVATE_HEADERS })
+    }
+
+    await addMessage({
+      name: parsed.data.name,
+      email: parsed.data.email,
+      message: parsed.data.message,
+      date: new Date().toISOString(),
+      read: false,
+    })
+    return new NextResponse(null, { status: 204, headers: PRIVATE_HEADERS })
   } catch (error) {
-    console.error('Messages API PUT error:', error)
-    if (error instanceof Error && error.message === 'Unauthorized') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-    return NextResponse.json({ error: 'Failed to update messages' }, { status: 500 })
+    console.error("Messages API POST error:", error)
+    return NextResponse.json({ error: "Failed to send message" }, { status: 500, headers: PRIVATE_HEADERS })
   }
 }

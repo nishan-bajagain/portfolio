@@ -1,4 +1,5 @@
 "use client"
+import { LegacyIcon } from "@/components/legacy-icon"
 
 import type React from "react"
 import { useState } from "react"
@@ -39,7 +40,7 @@ export default function AdminLoginPage() {
           href="/"
           className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8 transition-colors"
         >
-          <i className="ri-arrow-left-line" />
+          <LegacyIcon className="ri-arrow-left-line" />
           Back to site
         </Link>
 
@@ -58,7 +59,7 @@ export default function AdminLoginPage() {
           {error && (
             <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 mb-6">
               <p className="text-sm text-destructive flex items-center gap-2">
-                <i className="ri-error-warning-line" />
+                <LegacyIcon className="ri-error-warning-line" />
                 {error}
               </p>
             </div>
@@ -71,7 +72,7 @@ export default function AdminLoginPage() {
                 Email
               </label>
               <div className="relative">
-                <i className="ri-mail-line absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <LegacyIcon className="ri-mail-line absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <input
                   type="email"
                   id="email"
@@ -89,7 +90,7 @@ export default function AdminLoginPage() {
                 Password
               </label>
               <div className="relative">
-                <i className="ri-lock-line absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <LegacyIcon className="ri-lock-line absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <input
                   type={showPassword ? "text" : "password"}
                   id="password"
@@ -104,7 +105,7 @@ export default function AdminLoginPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  <i className={showPassword ? "ri-eye-off-line" : "ri-eye-line"} />
+                  <LegacyIcon className={showPassword ? "ri-eye-off-line" : "ri-eye-line"} />
                 </button>
               </div>
             </div>
@@ -116,12 +117,12 @@ export default function AdminLoginPage() {
             >
               {isLoading ? (
                 <>
-                  <i className="ri-loader-4-line animate-spin" />
+                  <LegacyIcon className="ri-loader-4-line animate-spin" />
                   Signing in...
                 </>
               ) : (
                 <>
-                  <i className="ri-login-box-line" />
+                  <LegacyIcon className="ri-login-box-line" />
                   Sign In
                 </>
               )}

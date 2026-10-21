@@ -1,4 +1,5 @@
 "use client"
+import { LegacyIcon } from "@/components/legacy-icon"
 
 import type React from "react"
 import { useEffect } from "react"
@@ -19,7 +20,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex items-center gap-3">
-          <i className="ri-loader-4-line animate-spin text-2xl text-primary" />
+          <LegacyIcon className="ri-loader-4-line animate-spin text-2xl text-primary" />
           <span className="text-muted-foreground">Loading...</span>
         </div>
       </div>

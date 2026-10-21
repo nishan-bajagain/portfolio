@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { createContext, useContext, useState, useEffect } from "react"
+import { createContext, useContext, useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 
 interface AuthContextType {
@@ -20,41 +20,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
-  useEffect(() => {
-    checkAuth()
-    
-    // Auto-logout after 1 hour of inactivity only
-    let inactivityTimer: NodeJS.Timeout
-    
-    const resetTimer = () => {
-      clearTimeout(inactivityTimer)
-      inactivityTimer = setTimeout(() => {
-        if (isAuthenticated) {
-          logout()
-        }
-      }, 3600000) // 1 hour
-    }
-    
-    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart']
-    
-    if (isAuthenticated) {
-      events.forEach(event => {
-        document.addEventListener(event, resetTimer, true)
-      })
-      resetTimer()
-    }
-    
-    return () => {
-      events.forEach(event => {
-        document.removeEventListener(event, resetTimer, true)
-      })
-      clearTimeout(inactivityTimer)
-    }
-  }, [isAuthenticated])
-
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     try {
-      const response = await fetch('/api/auth/verify')
+      const response = await fetch('/api/auth/verify', { cache: "no-store" })
       if (response.ok) {
         const data = await response.json()
         if (data.authenticated) {
@@ -67,7 +35,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  const logout = useCallback(async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' })
+    } catch (error) {
+      console.error('Logout failed:', error)
+    } finally {
+      setIsAuthenticated(false)
+      setUser(null)
+      router.push('/admin/login')
+    }
+  }, [router])
+
+  useEffect(() => {
+    const initialCheck = window.setTimeout(() => void checkAuth(), 0)
+    return () => window.clearTimeout(initialCheck)
+  }, [checkAuth])
+
+  useEffect(() => {
+    if (!isAuthenticated) return
+
+    let inactivityTimer: number
+    const resetTimer = () => {
+      window.clearTimeout(inactivityTimer)
+      inactivityTimer = window.setTimeout(() => void logout(), 3600000)
+    }
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart']
+    events.forEach((event) => document.addEventListener(event, resetTimer, true))
+    resetTimer()
+
+    return () => {
+      events.forEach((event) => document.removeEventListener(event, resetTimer, true))
+      window.clearTimeout(inactivityTimer)
+    }
+  }, [isAuthenticated, logout])
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
@@ -87,18 +90,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Login failed:', error)
       return false
-    }
-  }
-
-  const logout = async () => {
-    try {
-      await fetch('/api/auth/logout', { method: 'POST' })
-    } catch (error) {
-      console.error('Logout failed:', error)
-    } finally {
-      setIsAuthenticated(false)
-      setUser(null)
-      router.push('/admin/login')
     }
   }
 

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-label="Project preview unavailable">
+  <rect width="1200" height="675" fill="#111827"/>
+  <path d="M0 520 340 250l220 180 190-130 450 315v60H0z" fill="#1f2937"/>
+  <circle cx="870" cy="170" r="72" fill="#2563eb" opacity=".7"/>
+  <text x="600" y="390" fill="#e5e7eb" font-family="sans-serif" font-size="48" text-anchor="middle">Project preview</text>
+</svg>

@@ -1,4 +1,5 @@
 "use client"
+import { LegacyIcon } from "@/components/legacy-icon"
 
 import type React from "react"
 import { useState } from "react"
@@ -98,13 +99,13 @@ export default function EducationPage() {
                           onClick={() => openEditModal(index)}
                           className="p-2 text-blue-600 hover:bg-blue-100 rounded"
                         >
-                          <i className="ri-edit-line"></i>
+                          <LegacyIcon className="ri-edit-line"></LegacyIcon>
                         </button>
                         <button
                           onClick={() => handleDelete(index)}
                           className="p-2 text-red-600 hover:bg-red-100 rounded"
                         >
-                          <i className="ri-delete-bin-line"></i>
+                          <LegacyIcon className="ri-delete-bin-line"></LegacyIcon>
                         </button>
                       </div>
                     </div>

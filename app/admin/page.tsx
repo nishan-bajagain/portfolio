@@ -1,4 +1,5 @@
 "use client"
+import { LegacyIcon } from "@/components/legacy-icon"
 
 import { AdminSidebar } from "@/components/admin/sidebar"
 import { AdminHeader } from "@/components/admin/header"
@@ -14,7 +15,7 @@ export default function AdminDashboard() {
       <AuthGuard>
         <div className="min-h-screen bg-background flex items-center justify-center">
           <div className="text-center">
-            <i className="ri-loader-4-line text-4xl animate-spin text-primary mb-4" />
+            <LegacyIcon className="ri-loader-4-line text-4xl animate-spin text-primary mb-4" />
             <p className="text-muted-foreground">Loading dashboard...</p>
           </div>
         </div>
@@ -102,7 +103,7 @@ export default function AdminDashboard() {
                     <div
                       className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl ${stat.color} flex items-center justify-center`}
                     >
-                      <i className={`${stat.icon} text-lg sm:text-xl`} />
+                      <LegacyIcon className={`${stat.icon} text-lg sm:text-xl`} />
                     </div>
                   </div>
                 </Link>
@@ -119,7 +120,7 @@ export default function AdminDashboard() {
                     href={action.href}
                     className={`flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl ${action.color} ${action.color === "bg-primary" ? "text-primary-foreground" : "text-secondary-foreground"} hover:opacity-90 transition-all`}
                   >
-                    <i className={`${action.icon} text-lg sm:text-xl`} />
+                    <LegacyIcon className={`${action.icon} text-lg sm:text-xl`} />
                     <span className="font-medium text-sm sm:text-base">{action.label}</span>
                   </Link>
                 ))}
@@ -143,7 +144,7 @@ export default function AdminDashboard() {
                       className="flex items-center gap-3 sm:gap-4 p-3 rounded-lg hover:bg-secondary/50 transition-colors"
                     >
                       <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-secondary flex items-center justify-center shrink-0">
-                        <i className="ri-folder-line text-lg sm:text-xl text-muted-foreground" />
+                        <LegacyIcon className="ri-folder-line text-lg sm:text-xl text-muted-foreground" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-foreground truncate text-sm sm:text-base">{project.title}</p>
@@ -182,7 +183,7 @@ export default function AdminDashboard() {
                       <div
                         className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 ${message.read ? "bg-secondary" : "bg-primary/10"}`}
                       >
-                        <i
+                        <LegacyIcon
                           className={`ri-user-line text-sm sm:text-base ${message.read ? "text-muted-foreground" : "text-primary"}`}
                         />
                       </div>

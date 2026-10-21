@@ -1,22 +1,7 @@
-"use client"
+import { LegacyIcon } from "@/components/legacy-icon"
+import type { PortfolioData } from "@/lib/types"
 
-import { usePortfolioData } from "@/lib/portfolio-context"
-
-export function AboutSection() {
-  const { data, loading } = usePortfolioData()
-
-  if (loading || !data) {
-    return (
-      <section className="py-12 sm:py-16 md:py-20 lg:py-32 w-full">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading about section...</p>
-          </div>
-        </div>
-      </section>
-    )
-  }
+export function AboutSection({ data }: { data: PortfolioData }) {
   return (
     <section id="about" className="py-12 sm:py-16 md:py-20 lg:py-32 w-full">
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
@@ -24,7 +9,7 @@ export function AboutSection() {
           {/* Section Header */}
           <div className="text-center mb-10 sm:mb-16">
             <span className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-primary text-sm font-medium mb-4">
-              <i className="ri-user-line" />
+              <LegacyIcon className="ri-user-line" />
               About Me
             </span>
             <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground">
@@ -37,7 +22,7 @@ export function AboutSection() {
             <div className="space-y-6 sm:space-y-8">
               <div className="space-y-4 sm:space-y-6">
                 <h3 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-foreground flex items-center gap-3">
-                  <i className="ri-user-smile-line text-primary" />
+                  <LegacyIcon className="ri-user-smile-line text-primary" />
                   Who I Am
                 </h3>
                 <p className="text-muted-foreground leading-relaxed text-base sm:text-lg lg:text-xl">
@@ -53,7 +38,7 @@ export function AboutSection() {
               {/* Contact Info */}
               <div className="space-y-3 sm:space-y-4">
                 <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold text-foreground flex items-center gap-3">
-                  <i className="ri-contacts-line text-primary" />
+                  <LegacyIcon className="ri-contacts-line text-primary" />
                   Contact Info
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
@@ -66,7 +51,7 @@ export function AboutSection() {
               {/* Social Links */}
               <div className="space-y-3 sm:space-y-4">
                 <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold text-foreground flex items-center gap-3">
-                  <i className="ri-share-line text-primary" />
+                  <LegacyIcon className="ri-share-line text-primary" />
                   Connect With Me
                 </h3>
                 <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-3">
@@ -83,7 +68,7 @@ export function AboutSection() {
               {/* Experience */}
               <div className="space-y-4 sm:space-y-6">
                 <h3 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-foreground flex items-center gap-3">
-                  <i className="ri-briefcase-line text-primary" />
+                  <LegacyIcon className="ri-briefcase-line text-primary" />
                   Experience
                 </h3>
                 <div className="space-y-3 sm:space-y-4">
@@ -110,7 +95,7 @@ export function AboutSection() {
               {/* Education */}
               <div className="space-y-4 sm:space-y-6">
                 <h3 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-foreground flex items-center gap-3">
-                  <i className="ri-graduation-cap-line text-primary" />
+                  <LegacyIcon className="ri-graduation-cap-line text-primary" />
                   Education
                 </h3>
                 <div className="space-y-3 sm:space-y-4">
@@ -144,7 +129,7 @@ function ContactItem({ icon, label, value }: { icon: string; label: string; valu
   return (
     <div className="flex items-center gap-3 p-2.5 sm:p-3 lg:p-4 rounded-lg bg-card border border-border">
       <div className="w-9 h-9 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-        <i className={`${icon} text-primary text-sm sm:text-base lg:text-lg`} />
+        <LegacyIcon className={`${icon} text-primary text-sm sm:text-base lg:text-lg`} />
       </div>
       <div className="min-w-0">
         <p className="text-xs lg:text-sm text-muted-foreground">{label}</p>
@@ -163,7 +148,7 @@ function SocialLink({ href, icon, label }: { href: string; icon: string; label: 
       className="flex items-center justify-center sm:justify-start gap-2 px-3 sm:px-4 lg:px-5 py-2 lg:py-3 bg-card border border-border rounded-lg hover:border-primary hover:text-primary transition-all duration-300"
       aria-label={label}
     >
-      <i className={`${icon} text-base sm:text-lg lg:text-xl`} />
+      <LegacyIcon className={`${icon} text-base sm:text-lg lg:text-xl`} />
       <span className="text-xs sm:text-sm lg:text-base font-medium">{label}</span>
     </a>
   )

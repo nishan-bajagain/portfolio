@@ -1,14 +1,16 @@
 "use client"
 
 import type React from "react"
-import { createContext, useContext, useState, useEffect, useCallback } from "react"
-import { getPortfolioData, getMessages, updatePortfolioData, updateMessages, type PortfolioData, type Message, type Skill, type Project, type Experience, type Education } from "./data"
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from "react"
+import { getPortfolioData, getMessages, updatePortfolioData, updateMessage, type PortfolioData, type Message, type Skill, type Project, type Experience, type Education } from "./data"
+import { usePathname } from "next/navigation"
 
 interface AdminContextType {
   data: PortfolioData
   messages: Message[]
   updateData: (newData: PortfolioData) => Promise<void>
-  updateMessagesList: (newMessages: Message[]) => Promise<void>
+  markMessageRead: (id: string, read: boolean) => Promise<void>
+  deleteMessage: (id: string) => Promise<void>
   refreshData: () => Promise<void>
   refreshMessages: () => Promise<void>
   loading: boolean
@@ -53,38 +55,33 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   })
   const [messages, setMessages] = useState<Message[]>([])
   const [loading, setLoading] = useState(true)
+  const pathname = usePathname()
+  const hasLoadedData = useRef(false)
 
   const refreshData = useCallback(async () => {
     try {
-      const portfolioData = await getPortfolioData()
+      const [portfolioData, messagesData] = await Promise.all([getPortfolioData(), getMessages()])
       setData(portfolioData)
-      
-      // Try to fetch messages, but don't fail if unauthorized
-      try {
-        const messagesData = await getMessages()
-        setMessages(messagesData)
-      } catch (error) {
-        // Silently handle auth errors for messages
-        setMessages([])
-      }
+      setMessages(messagesData)
     } catch (error) {
-      console.error('Failed to fetch portfolio data:', error)
+      console.error('Failed to refresh admin data:', error)
     } finally {
       setLoading(false)
     }
   }, [])
 
   useEffect(() => {
-    refreshData()
-  }, [refreshData])
+    if (pathname === "/admin/login" || hasLoadedData.current) return
+    hasLoadedData.current = true
+    void refreshData()
+  }, [pathname, refreshData])
 
   const refreshMessages = useCallback(async () => {
     try {
       const messagesData = await getMessages()
       setMessages(messagesData)
     } catch (error) {
-      // Silently handle errors
-      setMessages([])
+      console.error("Failed to refresh messages:", error)
     }
   }, [])
 
@@ -92,24 +89,32 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     try {
       await updatePortfolioData(newData)
       setData(newData)
-      
-      // Trigger immediate frontend update
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('portfolioDataUpdated', Date.now().toString())
-        window.dispatchEvent(new CustomEvent('portfolioDataUpdated', { detail: newData }))
-      }
     } catch (error) {
       console.error('Failed to update data:', error)
       throw error
     }
   }, [])
 
-  const updateMessagesList = useCallback(async (newMessages: Message[]) => {
+  const setMessageRead = useCallback(async (id: string, read: boolean) => {
     try {
-      await updateMessages(newMessages)
-      setMessages(newMessages)
+      await updateMessage(id, read)
+      setMessages((current) => current.map((message) => message.id === id ? { ...message, read } : message))
     } catch (error) {
-      console.error('Failed to update messages:', error)
+      console.error('Failed to update message:', error)
+      throw error
+    }
+  }, [])
+
+  const removeMessage = useCallback(async (id: string) => {
+    try {
+      const response = await fetch(`/api/messages/${encodeURIComponent(id)}`, {
+        method: "DELETE",
+        cache: "no-store",
+      })
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
+      setMessages((current) => current.filter((message) => message.id !== id))
+    } catch (error) {
+      console.error("Failed to delete message:", error)
       throw error
     }
   }, [])
@@ -195,7 +200,8 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
       data, 
       messages, 
       updateData, 
-      updateMessagesList, 
+      markMessageRead: setMessageRead,
+      deleteMessage: removeMessage,
       refreshData,
       refreshMessages,
       loading,

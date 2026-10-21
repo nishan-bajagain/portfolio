@@ -1,27 +1,17 @@
+import { LegacyIcon } from "@/components/legacy-icon"
 import Link from "next/link"
-import { usePortfolioData } from "@/lib/portfolio-context"
+import type { PortfolioData } from "@/lib/types"
 
-export function Footer() {
-  const { data, loading } = usePortfolioData()
+export function Footer({ data, isHome = true }: { data: PortfolioData; isHome?: boolean }) {
   const currentYear = new Date().getFullYear()
 
   const quickLinks = [
-    { href: "#home", label: "Home" },
-    { href: "#about", label: "About" },
-    { href: "#skills", label: "Skills" },
-    { href: "#projects", label: "Projects" },
-    { href: "#contact", label: "Contact" },
+    { href: isHome ? "#home" : "/#home", label: "Home" },
+    { href: isHome ? "#about" : "/#about", label: "About" },
+    { href: isHome ? "#skills" : "/#skills", label: "Skills" },
+    { href: isHome ? "#projects" : "/#projects", label: "Projects" },
+    { href: isHome ? "#contact" : "/#contact", label: "Contact" },
   ]
-
-  if (loading || !data) {
-    return (
-      <footer className="bg-card border-t border-border w-full">
-        <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>
-      </footer>
-    )
-  }
 
   return (
     <footer className="bg-card border-t border-border w-full">
@@ -37,7 +27,7 @@ export function Footer() {
                 </span>
               </Link>
               <p className="text-muted-foreground text-sm lg:text-base max-w-xs">
-                Crafting digital experiences with passion and precision. Let's build something amazing together.
+                Crafting digital experiences with passion and precision. Let&apos;s build something amazing together.
               </p>
               {/* Social Links */}
               <div className="flex gap-3">
@@ -47,10 +37,12 @@ export function Footer() {
                     href={url}
                     target="_blank"
                     rel="noopener noreferrer"
+                    data-track="social_link"
+                    data-track-id={key}
                     className="w-10 h-10 lg:w-11 lg:h-11 rounded-lg bg-secondary flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-all duration-300"
                     aria-label={key}
                   >
-                    <i className={`ri-${key}-fill text-base lg:text-lg`} />
+                    <LegacyIcon className={`ri-${key}-fill text-base lg:text-lg`} />
                   </a>
                 ))}
               </div>
@@ -59,18 +51,18 @@ export function Footer() {
             {/* Quick Links */}
             <div>
               <h3 className="font-semibold text-foreground mb-4 lg:mb-6 flex items-center gap-2 text-base lg:text-lg">
-                <i className="ri-links-line text-primary" />
+                <LegacyIcon className="ri-links-line text-primary" />
                 Quick Links
               </h3>
               <ul className="space-y-2 lg:space-y-3">
                 {quickLinks.map((link) => (
                   <li key={link.href}>
-                    <Link
+                    <a
                       href={link.href}
                       className="text-muted-foreground hover:text-primary transition-colors duration-300 text-sm lg:text-base"
                     >
                       {link.label}
-                    </Link>
+                    </a>
                   </li>
                 ))}
               </ul>
@@ -79,20 +71,20 @@ export function Footer() {
             {/* Contact Info */}
             <div>
               <h3 className="font-semibold text-foreground mb-4 lg:mb-6 flex items-center gap-2 text-base lg:text-lg">
-                <i className="ri-contacts-line text-primary" />
+                <LegacyIcon className="ri-contacts-line text-primary" />
                 Contact
               </h3>
               <ul className="space-y-3 lg:space-y-4 text-sm lg:text-base">
                 <li className="flex items-center gap-3 text-muted-foreground">
-                  <i className="ri-mail-line text-primary" />
-                  {data.personal.email}
+                  <LegacyIcon className="ri-mail-line text-primary" />
+                  <a href={`mailto:${data.personal.email}`} data-track="email_tap">{data.personal.email}</a>
                 </li>
                 <li className="flex items-center gap-3 text-muted-foreground">
-                  <i className="ri-phone-line text-primary" />
-                  {data.personal.phone}
+                  <LegacyIcon className="ri-phone-line text-primary" />
+                  <a href={`tel:${data.personal.phone}`} data-track="phone_tap">{data.personal.phone}</a>
                 </li>
                 <li className="flex items-center gap-3 text-muted-foreground">
-                  <i className="ri-map-pin-line text-primary" />
+                  <LegacyIcon className="ri-map-pin-line text-primary" />
                   {data.personal.location}
                 </li>
               </ul>
@@ -104,8 +96,9 @@ export function Footer() {
             <p className="text-sm lg:text-base text-muted-foreground">
               © {currentYear} {data.personal.name}. All rights reserved.
             </p>
+            <Link href="/privacy" className="text-sm text-muted-foreground hover:text-primary">Privacy</Link>
             <p className="text-sm lg:text-base text-muted-foreground flex items-center gap-1">
-              Crafted with <i className="ri-heart-fill text-red-500" /> using Next.js
+              Crafted with <LegacyIcon className="ri-heart-fill text-red-500" /> using Next.js
             </p>
           </div>
         </div>

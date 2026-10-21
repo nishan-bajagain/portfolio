@@ -1,23 +1,10 @@
-"use client"
-
-import { usePortfolioData } from "@/lib/portfolio-context"
-import { type Project } from "@/lib/data"
-import Image from "next/image"
+import { LegacyIcon } from "@/components/legacy-icon"
+import type { PortfolioData, Project } from "@/lib/types"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
+import { ProjectImage } from "@/components/project-image"
 
-export function ProjectsSection({ showAll = false }: { showAll?: boolean }) {
-  const { data, loading } = usePortfolioData()
-
-  if (loading || !data) {
-    return (
-      <section className="py-12 sm:py-16 md:py-20 lg:py-32 w-full">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div><p className="text-muted-foreground">Loading...</p></div>
-        </div>
-      </section>
-    )
-  }
+export function ProjectsSection({ data, showAll = false }: { data: PortfolioData; showAll?: boolean }) {
 
   const projects = showAll ? data.projects : data.projects.slice(0, 6)
 
@@ -28,7 +15,7 @@ export function ProjectsSection({ showAll = false }: { showAll?: boolean }) {
           {/* Section Header */}
           <div className="text-center mb-10 sm:mb-16">
             <span className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-primary text-sm font-medium mb-4">
-              <i className="ri-folder-line" />
+              <LegacyIcon className="ri-folder-line" />
               My Projects
             </span>
             <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground mb-4">
@@ -53,9 +40,9 @@ export function ProjectsSection({ showAll = false }: { showAll?: boolean }) {
                 href="/projects"
                 className="inline-flex items-center gap-2 px-6 sm:px-8 lg:px-10 py-3 sm:py-4 lg:py-5 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition-all duration-300 group text-sm sm:text-base lg:text-lg"
               >
-                <i className="ri-folder-open-line" />
+                <LegacyIcon className="ri-folder-open-line" />
                 View All Projects
-                <i className="ri-arrow-right-line transition-transform group-hover:translate-x-1" />
+                <LegacyIcon className="ri-arrow-right-line transition-transform group-hover:translate-x-1" />
               </Link>
             </div>
           )}
@@ -85,11 +72,10 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
     >
       {/* Image */}
       <div className="relative aspect-video overflow-hidden">
-        <Image
-          src={project.image || "/placeholder.svg"}
+        <ProjectImage
+          src={project.image || "/project-placeholder.svg"}
           alt={project.title}
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-110"
+          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
@@ -100,9 +86,11 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
               href={project.liveUrl}
               target="_blank"
               rel="noopener noreferrer"
+              data-track="project_live"
+              data-track-id={project.id}
               className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
             >
-              <i className="ri-external-link-line" />
+              <LegacyIcon className="ri-external-link-line" />
               Live Demo
             </a>
           )}
@@ -111,9 +99,11 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
               href={project.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
+              data-track="project_code"
+              data-track-id={project.id}
               className="flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm text-white rounded-lg text-sm font-medium hover:bg-white/30 transition-colors"
             >
-              <i className="ri-github-fill" />
+              <LegacyIcon className="ri-github-fill" />
               Code
             </a>
           )}

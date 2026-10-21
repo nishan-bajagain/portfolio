@@ -1,4 +1,5 @@
 "use client"
+import { LegacyIcon } from "@/components/legacy-icon"
 
 import { useState } from "react"
 import Link from "next/link"
@@ -23,6 +24,7 @@ export function AdminSidebar() {
     { href: "/admin/experience", label: "Experience", icon: "ri-briefcase-line" },
     { href: "/admin/education", label: "Education", icon: "ri-graduation-cap-line" },
     { href: "/admin/messages", label: "Messages", icon: "ri-mail-line", badge: unreadCount },
+    { href: "/admin/analytics", label: "Analytics", icon: "ri-bar-chart-line" },
   ]
 
   const handleNavClick = () => {
@@ -36,7 +38,7 @@ export function AdminSidebar() {
         className="lg:hidden fixed top-4 left-4 z-[60] p-3 rounded-lg bg-card border border-border shadow-lg"
         aria-label="Toggle menu"
       >
-        <i className={cn("text-xl", isMobileOpen ? "ri-close-line" : "ri-menu-line")} />
+        <LegacyIcon className={cn("text-xl", isMobileOpen ? "ri-close-line" : "ri-menu-line")} />
       </button>
 
       {isMobileOpen && (
@@ -74,7 +76,7 @@ export function AdminSidebar() {
                     : "text-muted-foreground hover:text-foreground hover:bg-secondary",
                 )}
               >
-                <i className={`${item.icon} text-lg`} />
+                <LegacyIcon className={`${item.icon} text-lg`} />
                 <span className="font-medium">{item.label}</span>
                 {item.badge && item.badge > 0 && (
                   <span className="ml-auto bg-destructive text-destructive-foreground text-xs font-bold px-2 py-0.5 rounded-full">
@@ -91,16 +93,17 @@ export function AdminSidebar() {
           <Link
             href="/"
             target="_blank"
+            rel="noopener noreferrer"
             onClick={handleNavClick}
             className="flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-all"
           >
-            <i className="ri-external-link-line text-lg" />
+            <LegacyIcon className="ri-external-link-line text-lg" />
             <span className="font-medium">View Site</span>
           </Link>
 
           <div className="flex items-center gap-3 px-4 py-2">
             <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-              <i className="ri-user-line text-primary" />
+              <LegacyIcon className="ri-user-line text-primary" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground truncate">{user?.email || "Admin"}</p>
@@ -115,7 +118,7 @@ export function AdminSidebar() {
             }}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-destructive hover:bg-destructive/10 transition-all"
           >
-            <i className="ri-logout-box-line text-lg" />
+            <LegacyIcon className="ri-logout-box-line text-lg" />
             <span className="font-medium">Logout</span>
           </button>
         </div>
